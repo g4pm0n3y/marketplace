@@ -1,0 +1,15 @@
+<%- include('../includes/header'); %>
+
+<div class="container-fluid">
+  <div class="row">
+    <% products.forEach((product) => { %>
+      <div class="col-md-4 col-lg-2 m-2 m-md-0">
+        <img src="http://placehold.jp/150x150.png" class="img-fluid">
+        <h5 class="d-inline d-md-block align-top"><%= product.name %></h5> 
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+
+<%- include('../includes/footer'); %>
