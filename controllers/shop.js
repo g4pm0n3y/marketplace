@@ -23,3 +23,7 @@ exports.getCart = (req, res) => {
 exports.getCheckout = (req, res) => {
   res.render('shop/checkout')
 }
+
+exports.getOrders = (req, res) => {
+  res.render('shop/orders')
+}

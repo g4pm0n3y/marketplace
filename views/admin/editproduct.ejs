@@ -1,0 +1,20 @@
+<%- include('../includes/header'); %>
+
+<div class="container">
+  <div class="row justify-content-center m-3">
+    <form action="/admin/edit-product/<%=product.id%>?_method=PUT" method="POST">
+      <div class="form-group">
+        <input type="text" class="form-control" name="name" value="<%=product.name%>">
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-control" name="price" value="<%=product.price%>" step="0.01">
+      </div>
+      <div class="form-group">
+        <textarea class="form-control" name="description" cols="30" rows="5" value="<%=product.description%>"></textarea>
+      </div>
+      <button type="submit" class="btn btn-success">Update Product!</button>
+    </form>
+  </div>
+</div>
+
+<%- include('../includes/footer'); %>

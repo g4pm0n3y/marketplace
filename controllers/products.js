@@ -20,13 +20,48 @@ exports.addProduct = (req, res) => {
 // create route
 exports.createProduct = (req, res) => {
   let product = {
-    name: req.body.name
+    name: req.body.name,
+    description: req.body.description,
+    price: req.body.price
   }
   Product.create(product, (err, createdProduct) => {
     if(err){
-      console.log(err)
+      console.log(err);
     } else {
-      res.redirect('/')
+      res.redirect('/admin/products');
+    }
+  });
+}
+
+// edit route
+exports.editProduct = (req, res) => {
+  Product.findById(req.params.id, (err, foundProduct) => {
+    if(err){
+      console.log(err);
+    } else {
+      res.render('admin/editproduct', {product: foundProduct});
+    }
+  });
+}
+
+// update route
+exports.updateProduct = (req, res) => {
+  Product.findByIdAndUpdate(req.params.id, req.body, (err, updatedProduct) => {
+    if(err){
+      console.log(err);
+    } else {
+      res.redirect('/admin/products')
+    }
+  });
+}
+
+// delete route
+exports.deleteProduct = (req, res) => {
+  Product.findByIdAndDelete(req.params.id, (err, deletedProduct) => {
+    if(err){
+      console.log(err);
+    } else {
+      res.redirect('/admin/products');
     }
   });
 }

@@ -1,11 +1,18 @@
 <%- include('../includes/header'); %>
 
 <div class="container-fluid">
-  <div class="row">
+  <div class="row mt-2">
     <% products.forEach((product) => { %>
       <div class="col-md-4 col-lg-2 m-2 m-md-0">
         <img src="http://placehold.jp/150x150.png" class="img-fluid">
-        <h5 class="d-inline d-md-block align-top"><%= product.name %></h5> 
+        <div class="d-inline-block d-md-block align-top">
+          <h5><%= product.name %></h5> 
+          <p><strong>$<%= product.price %></strong></p>
+          <form action="/admin/delete-product/<%=product.id%>?_method=DELETE" method="POST">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+          </form>
+          <a class="btn btn-sm btn-warning" href="/admin/edit-product/<%=product.id%>">Edit</a>
+        </div>
       </div>
     <% }); %>
   </div>

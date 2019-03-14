@@ -1,8 +1,9 @@
 // modules
-const express     = require('express'),
-      mongoose    = require('mongoose'),
-      ejs         = require('ejs'),
-      bodyParser  = require('body-parser');
+const express         = require('express'),
+      mongoose        = require('mongoose'),
+      ejs             = require('ejs'),
+      bodyParser      = require('body-parser'),
+      methodOverride  = require('method-override');
 
 // database setup
 mongoose.connect('mongodb://localhost:27017/marketplace', {useNewUrlParser: true});
@@ -11,6 +12,7 @@ mongoose.connect('mongodb://localhost:27017/marketplace', {useNewUrlParser: true
 const app = express();
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false}));
+app.use(methodOverride('_method'));
 
 // import routes
 const shopRoutes = require('./routes/shop');
