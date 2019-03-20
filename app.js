@@ -17,10 +17,12 @@ app.use(methodOverride('_method'));
 // import routes
 const shopRoutes = require('./routes/shop');
 const adminRoutes = require('./routes/admin');
+const userRoutes = require('./routes/users');
 
 // use routes
 app.use(shopRoutes);
 app.use('/admin', adminRoutes);
+app.use(userRoutes);
 
 // server setup 
 app.listen(3000, () => {

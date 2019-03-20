@@ -1,5 +1,38 @@
 <%- include('../includes/header'); %>
 
-
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9">
+      <h1>Your Cart</h1>
+      <ul class="list-group">
+        <% userCart.cart.forEach(product => { %>
+            <li class="list-group-item">
+              <div>
+                <p><%= product.productID.name %></p>
+              </div>
+              <div>
+                <p>$<%= product.productID.price %></p>
+              </div>
+              <div>
+                <p>Qty: <%= product.quantity %></p>
+              </div>
+              <form action="/cart?_method=DELETE" method="POST">
+                <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                <input type="hidden" name="id" value="<%= product.productID._id %>">
+              </form>
+            </li>
+        <% }) %>
+        </ul>
+    </div>
+    <div class="col-lg-3 mt-5">
+        <h3>Total Price: <%= totalPrice %></h3>
+        <form action="/order" method="POST">
+          <button type="submit" class="btn btn-success">Buy Now</button>
+          <input type="hidden" name="totalPrice" value="<%= totalPrice %>">
+          <input type="hidden" name="userid" value="<%= userID %>">
+        </form>
+      </div>
+  </div>
+</div>
 
 <%- include('../includes/footer'); %>

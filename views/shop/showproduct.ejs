@@ -1,0 +1,17 @@
+<%- include('../includes/header'); %>
+
+<div class="container">
+  <div class="jumbotron">
+    <h1 class="display-4"><%= product.name %></h1>
+    <p><%= product.description %></p>
+    <hr class="my-4">
+    <p class="lead"> <%= product.price %></p>
+    <form action="/cart" method="POST"> 
+      <button class="btn btn-success btn-sm" type="submit">Add to Cart</button>
+      <input type="hidden" name="id" value="<%= product.id %>">
+    </form>
+    <a class="btn btn-danger btn-sm" href="/products">Back</a>
+  </div>
+</div>
+
+<%- include('../includes/footer'); %>

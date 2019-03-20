@@ -8,7 +8,11 @@
         <div class="d-inline-block d-md-block align-top">
           <h5><%= product.name %></h5> 
           <p><strong>$<%= product.price %></strong></p>
-          <a href="/cart">Add to Cart</a>
+          <a href="/products/<%=product.id%>">Details</a>
+          <form action="/cart" method="POST"> 
+            <button class="btn btn-success btn-sm" type="submit">Add to Cart</button>
+            <input type="hidden" name="id" value="<%= product.id %>">
+          </form>
         </div>
       </div>
     <% }); %>
