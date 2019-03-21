@@ -7,11 +7,10 @@ const Schema = mongoose.Schema;
 // define schema
 const orderSchema = {
   products: [{
-    productID: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
-    },
-    quantity: Number,
+    productID: String,
+    name: String,
+    price: Number,
+    quantity: Number
   }],
   totalPrice: Number,
   userID: String

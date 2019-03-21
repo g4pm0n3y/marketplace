@@ -116,14 +116,22 @@ exports.createOrder = (req, res) => {
   // create order 
   Order.create(order)
     .then(order => {
-      // place each cart product from users cart into order
+      // find user and populate cart items
       User.findById(req.body.userid)
+        .populate({
+          path: 'cart.productID',
+          model: 'Product'
+        })
+        // add each cart product to order
         .then(user => {
           user.cart.forEach(product => {
-            order.products.push({
-              productID: product.productID,
+            let cartProduct = {
+              productID: product.productID._id,
+              name: product.productID.name,
+              price: product.productID.price,
               quantity: product.quantity
-            })
+            }
+            order.products.push(cartProduct);
           })
           order.save()
           user.cart = [];
@@ -140,18 +148,7 @@ exports.createOrder = (req, res) => {
 exports.showOrders = (req, res) => {
   let userID = '5c8d62a99806bd30e1b22667';
   Order.find({userID: userID})
-    .populate({
-      path: 'products.productID',
-      model: 'Product'
-    })
     .then(orders => {
-      // accessing loop of products inside loop of orders
-      // try and find a way to avoid nested loops for performance
-      // orders.forEach(order => {
-      //   order.products.forEach(product => {
-      //     console.log(product.productID.name)
-      //   })
-      // });
-      res.render('orders', {orders: orders})
+      res.render('shop/orders', {orders: orders})
     })
 }
