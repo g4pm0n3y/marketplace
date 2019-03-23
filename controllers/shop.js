@@ -4,7 +4,7 @@ const Order     = require('../models/order');
 
 // get home page
 exports.getIndex = (req, res) => {
-  res.render('shop/index');
+  res.render('shop/index', {isAuthenticated: req.session.isLoggedIn});
 }
 
 // get all products
@@ -13,7 +13,10 @@ exports.getProducts = (req, res) => {
     if(err){
       console.log(err);
     } else {
-      res.render('shop/allproducts', {products: foundProducts});
+      res.render('shop/allproducts', {
+        products: foundProducts,
+        isAuthenticated: req.session.isLoggedIn
+      });
     }
   });
 }
@@ -24,16 +27,18 @@ exports.getProductDetail = (req, res) => {
     if(err){
       console.log(err)
     } else {
-      res.render('shop/showproduct', {product: foundProduct});
+      res.render('shop/showproduct', {
+        product: foundProduct,
+        isAuthenticated: req.session.isLoggedIn
+      });
     }
   });
 }
 
 // get cart
 exports.getCart = (req, res) => {
-  let userID = '5c8d62a99806bd30e1b22667';
   // get user & populate products in cart & render
-  User.findById(userID)
+  User.findById(req.session.user)
     .populate({
         path: 'cart.productID',
         model: 'Product'
@@ -50,40 +55,46 @@ exports.getCart = (req, res) => {
         userCart: user, 
         totalPrice: totalPrice,
         userID: user._id,
-        products: productArray
+        products: productArray,
+        isAuthenticated: req.session.isLoggedIn
       });
+    })
+    .catch(err => {
+      console.log(err);
     })
 }
 
 // add product to cart
 exports.addProductToCart = (req, res) => {
-  let userID = '5c8d62a99806bd30e1b22667';
-  let productID = req.body.id;
-  // find user
-  User.findById(userID)
-    .then(user => {
-      // add product or increase product quantity
-      let index = user.cart.findIndex(product => product.productID == productID);
-      if(index === -1){
-        user.cart.push({productID: productID, quantity: 1});
-        user.save();
-        res.redirect('/cart');
-      } else {
-        user.cart[index]['quantity'] += 1;
-        user.save();
-        res.redirect('/cart');
-      }
-    })
-    .catch(err => {
-      console.log(err)
-    });
+  if(req.session.user == null){
+    res.redirect('/login')
+  } else {
+    let productID = req.body.id;
+    // find user
+    User.findById(req.session.user)
+      .then(user => {
+        // add product or increase product quantity
+        let index = user.cart.findIndex(product => product.productID == productID);
+        if(index === -1){
+          user.cart.push({productID: productID, quantity: 1});
+          user.save();
+          res.redirect('/cart');
+        } else {
+          user.cart[index]['quantity'] += 1;
+          user.save();
+          res.redirect('/cart');
+        }
+      })
+      .catch(err => {
+        console.log(err)
+      });
+  }
 }
 
 // delete product from cart
 exports.deleteCartProduct = (req, res) => {
-  let userID = '5c8d62a99806bd30e1b22667';
   let deletedID = req.body.id;
-  User.findById(userID)
+  User.findById(req.session.user)
     .then(user => {
       let deletedIndex = user.cart.findIndex(product => product.productID == deletedID);
       if(user.cart[deletedIndex]['quantity'] > 1){
@@ -103,7 +114,7 @@ exports.deleteCartProduct = (req, res) => {
 
 // get checkout
 exports.getCheckout = (req, res) => {
-  res.render('shop/checkout')
+  res.render('shop/checkout', {isAuthenticated: req.session.isLoggedIn})
 }
 
 // create orders
@@ -111,13 +122,13 @@ exports.createOrder = (req, res) => {
   let order = {
     products: [],
     totalPrice: parseInt(req.body.totalPrice),
-    userID: req.body.userid
+    userID: req.session.user._id
   }
   // create order 
   Order.create(order)
     .then(order => {
       // find user and populate cart items
-      User.findById(req.body.userid)
+      User.findById(req.session.user)
         .populate({
           path: 'cart.productID',
           model: 'Product'
@@ -146,9 +157,14 @@ exports.createOrder = (req, res) => {
 
 // show orders
 exports.showOrders = (req, res) => {
-  let userID = '5c8d62a99806bd30e1b22667';
-  Order.find({userID: userID})
+  Order.find({userID: req.session.user._id})
     .then(orders => {
-      res.render('shop/orders', {orders: orders})
+      res.render('shop/orders', {
+        orders: orders,
+        isAuthenticated: req.session.isLoggedIn
+      })
+    })
+    .catch(err => {
+      console.log(err);
     })
 }

@@ -7,14 +7,19 @@ exports.getAdminProducts = (req, res) => {
     if(err){
       console.log(err);
     } else {
-      res.render('admin/adminproducts', {products: foundProducts});
+      res.render('admin/adminproducts', {
+        products: foundProducts,
+        isAuthenticated: req.session.isLoggedIn
+      });
     }
   });
 }
 
 // new route
 exports.addProduct = (req, res) => {
-  res.render('admin/addproduct');
+  res.render('admin/addproduct', {
+    isAuthenticated: req.session.isLoggedIn
+  });
 }
 
 // create route
@@ -22,7 +27,7 @@ exports.createProduct = (req, res) => {
   let product = {
     name: req.body.name,
     description: req.body.description,
-    price: req.body.price
+    price: req.body.price,
   }
   Product.create(product, (err, createdProduct) => {
     if(err){
@@ -39,7 +44,10 @@ exports.editProduct = (req, res) => {
     if(err){
       console.log(err);
     } else {
-      res.render('admin/editproduct', {product: foundProduct});
+      res.render('admin/editproduct', {
+        product: foundProduct,
+        isAuthenticated: req.session.isLoggedIn
+      });
     }
   });
 }

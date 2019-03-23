@@ -2,17 +2,34 @@
 const express         = require('express'),
       mongoose        = require('mongoose'),
       ejs             = require('ejs'),
+      session         = require('express-session'),
       bodyParser      = require('body-parser'),
+      MongoDBStore    = require('connect-mongodb-session')(session);
       methodOverride  = require('method-override');
 
 // database setup
-mongoose.connect('mongodb://localhost:27017/marketplace', {useNewUrlParser: true});
+const mongoURI = 'mongodb://localhost:27017/marketplace';
+mongoose.connect(mongoURI, {useNewUrlParser: true});
 
 // app setup
 const app = express();
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(methodOverride('_method'));
+
+// session setup
+const store = new MongoDBStore({
+  uri: mongoURI,
+  collection: 'sessions'
+});
+
+app.use(session({
+  secret: 'the leafs will win the cup', 
+  resave: false, 
+  saveUninitialized: false,
+  store: store
+}));
+
 
 // import routes
 const shopRoutes = require('./routes/shop');

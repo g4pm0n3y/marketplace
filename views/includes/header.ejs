@@ -17,21 +17,31 @@
       <li class="nav-item">
           <a class="nav-link" href="/products">Products</a>
       </li>
+      <% if (isAuthenticated) { %>
       <li class="nav-item">
           <a class="nav-link" href="/cart">Cart</a>
       </li>
       <li class="nav-item">
           <a class="nav-link" href="/orders">Orders</a>
       </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/add-product">Add Product</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/admin/products">Admin Products</a>
+        </li>
+        <li>
+          <a class="nav-link" href="/logout">Logout</a>
+        </li>
+      <% } %>
+      <% if (!isAuthenticated) { %>
       <li class="nav-item">
-        <a class="nav-link" href="/admin/add-product">Add Product</a>
-      </li>
-      <li class="nav-item">
-          <a class="nav-link" href="/admin/products">Admin Products</a>
+        <a class="nav-link" href="/login">Login</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/signup">Sign Up</a>
-    </li>
+      </li>
+      <% } %>
     </ul>
   </nav>
   

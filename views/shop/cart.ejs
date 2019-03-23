@@ -21,16 +21,16 @@
                 <input type="hidden" name="id" value="<%= product.productID._id %>">
               </form>
             </li>
-        <% }) %>
-        </ul>
-    </div>
-    <div class="col-lg-3 mt-5">
-        <h3>Total Price: <%= totalPrice %></h3>
-        <form action="/order" method="POST">
-          <button type="submit" class="btn btn-success">Buy Now</button>
-          <input type="hidden" name="totalPrice" value="<%= totalPrice %>">
-          <input type="hidden" name="userid" value="<%= userID %>">
-        </form>
+            <% }) %>
+          </ul>
+        </div>
+        <div class="col-lg-3 mt-5">
+          <h3>Total Price: <%= totalPrice %></h3>
+          <form action="/order" method="POST">
+            <button type="submit" class="btn btn-success">Buy Now</button>
+            <input type="hidden" name="totalPrice" value="<%= totalPrice %>">
+            <input type="hidden" name="userid" value="<%= userID %>">
+          </form>
       </div>
   </div>
 </div>

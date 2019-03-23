@@ -9,7 +9,7 @@ const productSchema = new Schema({
   name: String,
   image: String,
   description: String,
-  price: Number
+  price: Number,
 });
 
 // create model
