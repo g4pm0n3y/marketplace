@@ -7,15 +7,18 @@ const router = express.Router();
 // controllers
 const shop = require('../controllers/shop');
 
+// middleware
+const checkAuth = require('../middleware/check-auth');
+
 // routes
 router.get('/', shop.getIndex);
 router.get('/products', shop.getProducts);
 router.get('/products/:id', shop.getProductDetail);
-router.get('/cart', shop.getCart);
-router.post('/cart', shop.addProductToCart);
-router.delete('/cart', shop.deleteCartProduct);
-router.get('/checkout', shop.getCheckout);
-router.post('/order', shop.createOrder);
-router.get('/orders', shop.showOrders);
+router.get('/cart', checkAuth, shop.getCart);
+router.post('/cart', checkAuth, shop.addProductToCart);
+router.delete('/cart', checkAuth, shop.deleteCartProduct);
+router.get('/checkout', checkAuth, shop.getCheckout);
+router.post('/order', checkAuth, shop.createOrder);
+router.get('/orders', checkAuth, shop.showOrders);
 
 module.exports = router;

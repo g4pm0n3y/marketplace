@@ -10,6 +10,7 @@
           <p><strong>$<%= product.price %></strong></p>
           <a href="/products/<%=product.id%>">Details</a>
           <form action="/admin/delete-product/<%=product.id%>?_method=DELETE" method="POST">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <button type="submit" class="btn btn-sm btn-danger">Delete</button>
           </form>
           <a class="btn btn-sm btn-warning" href="/admin/edit-product/<%=product.id%>">Edit</a>

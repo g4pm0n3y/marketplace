@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const bcrypt = require('bcryptjs')
 
 // get signup page
 exports.getSignupPage = (req, res) => {
@@ -7,19 +8,37 @@ exports.getSignupPage = (req, res) => {
 
 // create user
 exports.createUser = (req, res) => {
-  let user = {
-    name: req.body.name,
-    email: req.body.email
-  }
-  User.create(user, (err, createdUser) => {
-    if(err){
-      console.log(err);
-    } else {
-      res.redirect('/');
+  // search for already used email
+  User.findOne({email: req.body.email})
+  .then(user => {
+    if(user){
+      // redirect is user exists
+      return res.redirect('/signup')
     }
+    // encrypt password
+    return bcrypt.hash(req.body.password, 12)
+      .then(encryptedPassword => {
+        // extract new user data and input new user data
+        let newUser = {
+          name: req.body.name,
+          email: req.body.email,
+          password: encryptedPassword,
+        }
+        // create new user
+        User.create(newUser, (err, createdUser) => {
+          if(err){
+            console.log(err);
+          } else {
+            res.redirect('/login');
+          }
+        })
+      })
   })
+  .catch(err => {
+    console.log(err)
+  }) 
 }
-
+  
 // get login page
 exports.getLoginPage = (req, res) => {
   res.render('shop/login', {
@@ -29,16 +48,32 @@ exports.getLoginPage = (req, res) => {
 
 // user login
 exports.userLogin = (req, res) => {
-  let userID = '5c8d62a99806bd30e1b22667';
-  User.findById(userID)
+  // get entered email/password
+  let email = req.body.email;
+  let password = req.body.password;
+  // find user with matching email
+  User.findOne({email: email})
     .then(user => {
-      req.session.isLoggedIn = true;
-      req.session.user = user;
-      req.session.save(() => {
-        res.redirect('/products')
-      })
+      if(!user){
+        return res.redirect('/login')
+      }
+      // compare password to hash
+      bcrypt.compare(password, user.password)
+        .then(result => {
+          if(result){
+            // create user session
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            return req.session.save(() => {
+              res.redirect('/products')
+            })
+          }
+          res.redirect('/login')
+        })
+        .catch(err => {
+          console.log(err);
+        })
     })
-    .catch(err => console.log(err));
 }
 
 // user logout

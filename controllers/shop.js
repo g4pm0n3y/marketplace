@@ -146,8 +146,9 @@ exports.createOrder = (req, res) => {
           })
           order.save()
           user.cart = [];
-          user.save()
-          res.redirect('/orders')
+          user.save(() => {
+            res.redirect('/orders')
+          })
         })
     })
     .catch(error => {

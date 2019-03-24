@@ -12,6 +12,7 @@
       <div class="form-group">
         <textarea class="form-control" name="description" cols="30" rows="5" value="<%=product.description%>"></textarea>
       </div>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <button type="submit" class="btn btn-success">Update Product!</button>
     </form>
   </div>

@@ -5,7 +5,8 @@ const express         = require('express'),
       session         = require('express-session'),
       bodyParser      = require('body-parser'),
       MongoDBStore    = require('connect-mongodb-session')(session);
-      methodOverride  = require('method-override');
+      methodOverride  = require('method-override'),
+      csrf            = require('csurf');
 
 // database setup
 const mongoURI = 'mongodb://localhost:27017/marketplace';
@@ -23,13 +24,20 @@ const store = new MongoDBStore({
   collection: 'sessions'
 });
 
+const csrfSecurity = csrf();
 app.use(session({
   secret: 'the leafs will win the cup', 
   resave: false, 
   saveUninitialized: false,
   store: store
 }));
+app.use(csrfSecurity);
 
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
 
 // import routes
 const shopRoutes = require('./routes/shop');
