@@ -1,14 +1,11 @@
 const User                = require('../models/user'),
       bcrypt              = require('bcryptjs'),
       nodemailer          = require('nodemailer'),
+      sgMail              = require('@sendgrid/mail'),
       sendgridTransport   = require('nodemailer-sendgrid-transport');
 
 // email setup
-const transporter = nodemailer.createTransport(sendgridTransport({
-  auth: {
-    api_key: 
-  }
-}));
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // get signup page
 exports.getSignupPage = (req, res) => {
@@ -47,12 +44,13 @@ exports.createUser = (req, res) => {
           } else {
             res.redirect('/login');
             // send signup confirmation to users email
-            return transporter.sendMail({
+            const msg = {
               to: createdUser.email,
               from: 'marketplace@test.com',
               subject: 'Signup Success',
               text: 'You successfully signed up!'
-            });
+            };
+            sgMail.send(msg);
           }
         })
       })
