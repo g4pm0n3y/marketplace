@@ -4,7 +4,7 @@ const Order     = require('../models/order');
 
 // get home page
 exports.getIndex = (req, res) => {
-  res.render('shop/index', {isAuthenticated: req.session.isLoggedIn});
+  res.render('shop/index');
 }
 
 // get all products
@@ -15,7 +15,6 @@ exports.getProducts = (req, res) => {
     } else {
       res.render('shop/allproducts', {
         products: foundProducts,
-        isAuthenticated: req.session.isLoggedIn
       });
     }
   });
@@ -29,7 +28,6 @@ exports.getProductDetail = (req, res) => {
     } else {
       res.render('shop/showproduct', {
         product: foundProduct,
-        isAuthenticated: req.session.isLoggedIn
       });
     }
   });
@@ -56,7 +54,6 @@ exports.getCart = (req, res) => {
         totalPrice: totalPrice,
         userID: user._id,
         products: productArray,
-        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch(err => {
@@ -114,7 +111,7 @@ exports.deleteCartProduct = (req, res) => {
 
 // get checkout
 exports.getCheckout = (req, res) => {
-  res.render('shop/checkout', {isAuthenticated: req.session.isLoggedIn})
+  res.render('shop/checkout')
 }
 
 // create orders
@@ -162,7 +159,6 @@ exports.showOrders = (req, res) => {
     .then(orders => {
       res.render('shop/orders', {
         orders: orders,
-        isAuthenticated: req.session.isLoggedIn
       })
     })
     .catch(err => {

@@ -6,6 +6,7 @@ const express         = require('express'),
       bodyParser      = require('body-parser'),
       MongoDBStore    = require('connect-mongodb-session')(session);
       methodOverride  = require('method-override'),
+      flash           = require('connect-flash'),
       csrf            = require('csurf');
 
 // database setup
@@ -15,6 +16,7 @@ mongoose.connect(mongoURI, {useNewUrlParser: true});
 // app setup
 const app = express();
 app.set('view engine', 'ejs');
+app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(methodOverride('_method'));
 
@@ -32,12 +34,14 @@ app.use(session({
   store: store
 }));
 app.use(csrfSecurity);
+app.use(flash())
 
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
   res.locals.csrfToken = req.csrfToken();
   next();
 });
+
 
 // import routes
 const shopRoutes = require('./routes/shop');

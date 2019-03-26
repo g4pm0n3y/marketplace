@@ -1,6 +1,11 @@
 <%- include('../includes/header'); %>
 
 <div class="container">
+  <% if(error){ %>
+    <div class="row justify-content-center m-3">
+      <div class="alert alert-danger" role="alert"><%= error %></div>
+    </div>
+  <% } %>
   <div class="row justify-content-center m-3">
     <form action="/login" method="POST">
       <div class="form-group">

@@ -1,9 +1,24 @@
-const User = require('../models/user');
-const bcrypt = require('bcryptjs')
+const User                = require('../models/user'),
+      bcrypt              = require('bcryptjs'),
+      nodemailer          = require('nodemailer'),
+      sendgridTransport   = require('nodemailer-sendgrid-transport');
+
+// email setup
+const transporter = nodemailer.createTransport(sendgridTransport({
+  auth: {
+    api_key: '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'
+  }
+}));
 
 // get signup page
 exports.getSignupPage = (req, res) => {
-  res.render('shop/signup', {isAuthenticated: false})
+  let errorMsg = req.flash('error') 
+  if(errorMsg.length > 0){
+    errorMsg = errorMsg[0]
+  } else {
+    errorMsg = null
+  }
+  res.render('shop/signup', {isAuthenticated: false, error: errorMsg})
 }
 
 // create user
@@ -13,6 +28,7 @@ exports.createUser = (req, res) => {
   .then(user => {
     if(user){
       // redirect is user exists
+      req.flash('error', 'Email already in use')
       return res.redirect('/signup')
     }
     // encrypt password
@@ -30,6 +46,13 @@ exports.createUser = (req, res) => {
             console.log(err);
           } else {
             res.redirect('/login');
+            // send signup confirmation to users email
+            return transporter.sendMail({
+              to: createdUser.email,
+              from: 'marketplace@test.com',
+              subject: 'Signup Success',
+              text: 'You successfully signed up!'
+            });
           }
         })
       })
@@ -41,9 +64,13 @@ exports.createUser = (req, res) => {
   
 // get login page
 exports.getLoginPage = (req, res) => {
-  res.render('shop/login', {
-    isAuthenticated: false
-  });
+  let errorMsg = req.flash('error') 
+  if(errorMsg.length > 0){
+    errorMsg = errorMsg[0]
+  } else {
+    errorMsg = null
+  }
+  res.render('shop/login', {error: errorMsg});
 }
 
 // user login
@@ -55,6 +82,7 @@ exports.userLogin = (req, res) => {
   User.findOne({email: email})
     .then(user => {
       if(!user){
+        req.flash('error', 'Invalid email or password')
         return res.redirect('/login')
       }
       // compare password to hash
@@ -68,6 +96,7 @@ exports.userLogin = (req, res) => {
               res.redirect('/products')
             })
           }
+          req.flash('error', 'Invalid email or password')
           res.redirect('/login')
         })
         .catch(err => {
