@@ -9,6 +9,8 @@ const userSchema = new Schema({
   name: String,
   email: String,
   password: String,
+  resetToken: String,
+  resetTokenExpiration: String,
   cart: [{
     productID: {
       type: mongoose.Schema.Types.ObjectId,

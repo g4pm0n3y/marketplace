@@ -1,15 +1,15 @@
 // models
-const Product = require('../models/product')
+const Product = require('../models/product');
 
 // index route
 exports.getAdminProducts = (req, res) => {
-  Product.find({}, (err, foundProducts) => {
+  Product.find({userID: req.session.user._id}, (err, foundProducts) => {
     if(err){
       console.log(err);
     } else {
       res.render('admin/adminproducts', {
         products: foundProducts,
-      });
+      }); 
     }
   });
 }
@@ -25,6 +25,7 @@ exports.createProduct = (req, res) => {
     name: req.body.name,
     description: req.body.description,
     price: req.body.price,
+    userID: req.session.user._id
   }
   Product.create(product, (err, createdProduct) => {
     if(err){
@@ -48,22 +49,42 @@ exports.editProduct = (req, res) => {
 
 // update route
 exports.updateProduct = (req, res) => {
-  Product.findByIdAndUpdate(req.params.id, req.body, (err, updatedProduct) => {
-    if(err){
+  Product.findById(req.params.id)
+    .then(product => {
+      if(product.userID == req.session.user._id) {
+        Product.findByIdAndUpdate(req.params.id, req.body, (err, updatedProduct) => {
+          if(err){
+            console.log(err);
+          } else {
+            res.redirect('/admin/products')
+          }
+        });
+      } else {
+        res.redirect('/')
+      }
+    })
+    .catch(err => {
       console.log(err);
-    } else {
-      res.redirect('/admin/products')
-    }
-  });
+    });
 }
 
 // delete route
 exports.deleteProduct = (req, res) => {
-  Product.findByIdAndDelete(req.params.id, (err, deletedProduct) => {
-    if(err){
+  Product.findById(req.params.id)
+    .then(product => {
+      if(product.userID == req.session.user._id){
+        Product.findByIdAndDelete(req.params.id, (err, deletedProduct) => {
+          if(err){
+            console.log(err);
+          } else {
+            res.redirect('/admin/products');
+          }
+        });
+      } else {
+        res.redirect('/')
+      }
+    })
+    .catch(err => {
       console.log(err);
-    } else {
-      res.redirect('/admin/products');
-    }
-  });
+    });
 }
