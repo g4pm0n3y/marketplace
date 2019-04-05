@@ -25,14 +25,13 @@ router.post('/signup', [
             return Promise.reject('Email exists already');
           }
         })
-    })
-    .normalizeEmail(),
+    }),
   body('password', 'Passwords must be at least 6 characters long')
     .isLength({min: 6})
     .trim(),
   body('confirmpassword').custom((value, {req}) => {
     if(value !== req.body.password){
-      throw new Error('Passwords have to match!')
+      throw new Error('Passwords have to match!');
     }
     return true
   })

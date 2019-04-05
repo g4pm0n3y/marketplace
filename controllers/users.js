@@ -1,11 +1,16 @@
 const User                  = require('../models/user'),
       bcrypt                = require('bcryptjs'),
       crypto                = require('crypto'),
-      sgMail                = require('@sendgrid/mail'),
+      nodemailer            = require('nodemailer'),
+      sendgridTransport     = require('nodemailer-sendgrid-transport'),
       { validationResult }  = require('express-validator/check');
 
 // email setup
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const transporter = nodemailer.createTransport(sendgridTransport({
+  auth: {
+    api_key: process.env.SENDGRID_API_KEY
+  }
+}));
 
 // get signup page
 exports.getSignupPage = (req, res) => {
@@ -59,20 +64,24 @@ exports.createUser = (req, res) => {
           // send signup confirmation to users email
           const msg = {
             to: createdUser.email,
-            from: 'marketplace@test.com',
+            from: 'nathan.gappy@gmail.com',
             subject: 'Signup Success',
             text: 'You successfully signed up!'
           };
-          sgMail.send(msg)
+          transporter.sendMail(msg)
             .catch(err => {
-              console.log(err);
-            });
+              let error = new Error(err);
+              error.httpStatusCode = 500;
+              return next(error); 
+            })
         }
       })
     })
-  .catch(err => {
-    console.log(err);
-  }) 
+    .catch(err => {
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
+    })
 }
   
 // get login page
@@ -113,7 +122,9 @@ exports.userLogin = (req, res) => {
           res.redirect('/login')
         })
         .catch(err => {
-          console.log(err);
+          let error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error); 
         })
     })
 }
@@ -159,20 +170,24 @@ exports.resetPassword = (req, res) => {
         // send reset email to user
         const msg = {
           to: req.body.email,
-          from: 'marketplace@test.com',
+          from: 'nathan.gappy@gmail.com',
           subject: 'Password Reset',
           html: `
           <p>You have requested a password reset.</p>
           <p>Click this <a href="http://localhost:3000/reset/${token}"> to set a new password.</p>
           `
         };
-        sgMail.send(msg)
+        transporter.sendMail(msg)
           .catch(err => {
-            console.log(err);
-          });
+            let error = new Error(err);
+            error.httpStatusCode = 500;
+            return next(error); 
+          })
       })
       .catch(err => {
-        console.log(err)
+        let error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error); 
       })
   })
 }
@@ -198,7 +213,9 @@ exports.getNewPassword = (req, res) => {
       });
     })
     .catch(err => {
-      console.log(err)
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
     })
 }
 
@@ -232,6 +249,8 @@ exports.setNewPassword = (req, res) => {
     res.redirect('/login');
   })
   .catch(err => {
-    console.log(err);
-  });
+    let error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error); 
+  })
 };

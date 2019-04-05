@@ -20,6 +20,7 @@ app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false}));
 app.use(methodOverride('_method'));
 
+
 // session setup
 const store = new MongoDBStore({
   uri: mongoURI,
@@ -47,11 +48,18 @@ app.use((req, res, next) => {
 const shopRoutes = require('./routes/shop');
 const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/users');
+const errorRoutes = require('./routes/errors');
 
 // use routes
 app.use(shopRoutes);
 app.use('/admin', adminRoutes);
 app.use(userRoutes);
+app.use(errorRoutes)
+
+// error middleware
+app.use((error, req, res, next) => {
+  res.redirect('/500');
+})
 
 // server setup 
 app.listen(3000, () => {

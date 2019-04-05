@@ -57,7 +57,9 @@ exports.getCart = (req, res) => {
       });
     })
     .catch(err => {
-      console.log(err);
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
     })
 }
 
@@ -83,8 +85,10 @@ exports.addProductToCart = (req, res) => {
         }
       })
       .catch(err => {
-        console.log(err)
-      });
+        let error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error); 
+      })
   }
 }
 
@@ -104,8 +108,10 @@ exports.deleteCartProduct = (req, res) => {
         res.redirect('/cart');
       } 
     })
-    .catch(error => {
-      console.log(error)
+    .catch(err => {
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
     })
 }
 
@@ -148,8 +154,10 @@ exports.createOrder = (req, res) => {
           })
         })
     })
-    .catch(error => {
-      console.log(error)
+    .catch(err => {
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
     })
 }
 
@@ -162,6 +170,8 @@ exports.showOrders = (req, res) => {
       })
     })
     .catch(err => {
-      console.log(err);
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
     })
 }

@@ -1,8 +1,9 @@
 // models
 const Product = require('../models/product');
+const mongoose = require('mongoose');
 
 // index route
-exports.getAdminProducts = (req, res) => {
+exports.getAdminProducts = (req, res, next) => {
   Product.find({userID: req.session.user._id}, (err, foundProducts) => {
     if(err){
       console.log(err);
@@ -15,29 +16,31 @@ exports.getAdminProducts = (req, res) => {
 }
 
 // new route
-exports.addProduct = (req, res) => {
+exports.addProduct = (req, res, next) => {
   res.render('admin/addproduct');
 }
 
 // create route
-exports.createProduct = (req, res) => {
+exports.createProduct = (req, res, next) => {
   let product = {
     name: req.body.name,
     description: req.body.description,
     price: req.body.price,
     userID: req.session.user._id
   }
-  Product.create(product, (err, createdProduct) => {
-    if(err){
-      console.log(err);
-    } else {
-      res.redirect('/admin/products');
-    }
-  });
+  Product.create(product)
+    .then(result => {
+      res.redirect('/admin/products')
+    })
+    .catch(err => {
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
+    })
 }
 
 // edit route
-exports.editProduct = (req, res) => {
+exports.editProduct = (req, res, next) => {
   Product.findById(req.params.id, (err, foundProduct) => {
     if(err){
       console.log(err);
@@ -48,7 +51,7 @@ exports.editProduct = (req, res) => {
 }
 
 // update route
-exports.updateProduct = (req, res) => {
+exports.updateProduct = (req, res, next) => {
   Product.findById(req.params.id)
     .then(product => {
       if(product.userID == req.session.user._id) {
@@ -64,12 +67,14 @@ exports.updateProduct = (req, res) => {
       }
     })
     .catch(err => {
-      console.log(err);
-    });
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
+    })
 }
 
 // delete route
-exports.deleteProduct = (req, res) => {
+exports.deleteProduct = (req, res, next) => {
   Product.findById(req.params.id)
     .then(product => {
       if(product.userID == req.session.user._id){
@@ -85,6 +90,8 @@ exports.deleteProduct = (req, res) => {
       }
     })
     .catch(err => {
-      console.log(err);
-    });
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
+    })
 }
