@@ -1,3 +1,9 @@
+// modules
+const fs = require('fs');
+const path = require('path');
+const pdf = require('pdfkit');
+
+// models
 const Product   = require('../models/product');
 const User      = require('../models/user');
 const Order     = require('../models/order');
@@ -147,6 +153,10 @@ exports.createOrder = (req, res) => {
             }
             order.products.push(cartProduct);
           })
+          // get date for the order
+          let currentDate = new Date().toISOString().replace(/\T.+/, '')
+          order.date = currentDate
+          // save all changes
           order.save()
           user.cart = [];
           user.save(() => {
@@ -174,4 +184,40 @@ exports.showOrders = (req, res) => {
       error.httpStatusCode = 500;
       return next(error); 
     })
+}
+
+// download invoices
+exports.downloadInvoice = (req, res, next) => {
+  Order.findById(req.params.orderID)
+  .then(order => {
+      let orderID = req.params.orderID;
+      if(!order){
+        return next(new Error('No order'));
+      }
+      if(order.userID !== req.session.user._id.toString()){
+        return next(new Error('No order'));
+      }
+
+      // create invoice pdf file
+      let invoice = 'invoice-' + orderID + '.pdf';
+      let invoicePath = path.join('data', 'invoices', invoice);
+      let pdfDocument = new pdf();
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename="' + invoice + '"');
+      pdfDocument.pipe(fs.createWriteStream(invoicePath));
+      pdfDocument.pipe(res);
+      pdfDocument.fontSize(26).text('Invoice', {
+        underline: true
+      });
+      order.products.forEach(product => {
+        pdfDocument.fontSize(14).text(product.name + ' - ' + product.quantity + ' x $' + product.price)
+      })
+      pdfDocument.text('----------------------------')
+      pdfDocument.fontSize(18).text('Total Price: $' + order.totalPrice)
+      pdfDocument.end();
+    })
+    .catch(err => {
+      console.log(err)
+      next(err);
+    });
 }

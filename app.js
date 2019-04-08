@@ -4,6 +4,7 @@ const express         = require('express'),
       ejs             = require('ejs'),
       session         = require('express-session'),
       bodyParser      = require('body-parser'),
+      multer          = require('multer')
       MongoDBStore    = require('connect-mongodb-session')(session);
       methodOverride  = require('method-override'),
       flash           = require('connect-flash'),
@@ -13,11 +14,32 @@ const express         = require('express'),
 const mongoURI = 'mongodb://localhost:27017/marketplace';
 mongoose.connect(mongoURI, {useNewUrlParser: true});
 
+// file storage
+const fileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'images');
+  },
+  filename: (req, file, cb) => {
+    cb(null, new Date().toISOString() + '-' + file.originalname)
+  }
+});
+
+// filter invalid image types
+const fileFilter = (req, file, cb) => {
+  if(file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg'){
+    cb(null, true);
+  } else {
+    cb(null, false)
+  }
+}
+
 // app setup
 const app = express();
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+app.use('/images', express.static('images'));
 app.use(bodyParser.urlencoded({ extended: false}));
+app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 app.use(methodOverride('_method'));
 
 

@@ -20,5 +20,6 @@ router.delete('/cart', checkAuth, shop.deleteCartProduct);
 router.get('/checkout', checkAuth, shop.getCheckout);
 router.post('/order', checkAuth, shop.createOrder);
 router.get('/orders', checkAuth, shop.showOrders);
+router.get('/orders/:orderID', checkAuth, shop.downloadInvoice);
 
 module.exports = router;

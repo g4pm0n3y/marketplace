@@ -13,7 +13,8 @@ const orderSchema = {
     quantity: Number
   }],
   totalPrice: Number,
-  userID: String
+  userID: String,
+  date: String
 }
 // create model
 const Order = mongoose.model('Order', orderSchema);

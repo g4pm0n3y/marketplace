@@ -5,8 +5,10 @@
   <% orders.forEach(order => { %>
     <div class="row mt-5" style="width: 80%">
       <div class="col-7">
-        <p>Date: </p>
-        <p>Total: <%= order.totalPrice %></p>
+        <p>Order #<%=order._id%></p>
+        <p>Date: <%= order.date %></p>
+        <p>Total: $<%= order.totalPrice %></p>
+        <a class="btn btn-link p-0" href="/orders/<%= order._id %>">Download Invoice</a>
       </div>
       <div class="col-7">
         <ul class="list-group">
