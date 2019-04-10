@@ -3,9 +3,9 @@
 <div class="container-fluid">
   <div class="row mt-2">
     <% products.forEach((product) => { %>
-      <div class="col-md-4 col-lg-2 m-2 m-md-0">
-        <img src="/<%= product.imagePath %>" class="img-fluid">
-        <div class="d-inline-block d-md-block align-top">
+      <div class="col-md-4 col-lg-2 mt-3 m-md-0">
+        <img src="/<%= product.imagePath %>" class="img-fluid" style="width: 150px; height: 150px">
+        <div class="d-inline-block d-md-block align-top mt-2">
           <h5><%= product.name %></h5> 
           <p><strong>$<%= product.price %></strong></p>
           <a href="/products/<%=product.id%>">Details</a>
@@ -18,6 +18,7 @@
       </div>
     <% }); %>
   </div>
+  <%- include('../includes/pagination') %>
 </div>
 
 

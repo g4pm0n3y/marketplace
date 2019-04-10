@@ -8,6 +8,9 @@ const Product   = require('../models/product');
 const User      = require('../models/user');
 const Order     = require('../models/order');
 
+// variables
+const itemsPerPage = 6;
+
 // get home page
 exports.getIndex = (req, res) => {
   res.render('shop/index');
@@ -15,15 +18,35 @@ exports.getIndex = (req, res) => {
 
 // get all products
 exports.getProducts = (req, res) => {
-  Product.find({}, (err, foundProducts) => {
-    if(err){
-      console.log(err);
-    } else {
-      res.render('shop/allproducts', {
-        products: foundProducts,
-      });
-    }
-  });
+  // pagination logic
+  let page = +req.query.page || 1;
+  let totalProducts;
+
+  Product.find()
+    .countDocuments()
+    .then(productCount => {
+      // product logic
+      totalProducts = productCount
+      return Product.find()
+        .skip((page - 1) * itemsPerPage)
+        .limit(itemsPerPage)
+      })
+      .then(products => {
+        res.render('shop/allproducts', {
+          products: products,
+          currentPage: page,
+          hasNextPage: itemsPerPage * page < totalProducts,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalProducts / itemsPerPage)
+      })
+    })
+    .catch(err => {
+    let error = new Error(err);
+    error.httpStatusCode = 500;
+    return next(error); 
+  })
 }
 
 // get product detail

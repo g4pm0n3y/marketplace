@@ -3,17 +3,50 @@ const Product = require('../models/product');
 const mongoose = require('mongoose');
 const fileHelper = require('../helper/file')
 
+// variables
+const itemsPerPage = 6;
+
 // index route
 exports.getAdminProducts = (req, res, next) => {
-  Product.find({userID: req.session.user._id}, (err, foundProducts) => {
-    if(err){
-      console.log(err);
-    } else {
-      res.render('admin/adminproducts', {
-        products: foundProducts,
-      }); 
-    }
-  });
+  // pagination logic
+  let page = +req.query.page || 1;
+  let totalProducts;
+
+  Product.find({userID: req.session.user._id})
+    .countDocuments()
+    .then(productCount => {
+      // product logic
+      totalProducts = productCount
+      return Product.find()
+        .skip((page - 1) * itemsPerPage)
+        .limit(itemsPerPage)
+      })
+      .then(foundProducts => {
+        res.render('admin/adminproducts', {
+          products: foundProducts,
+          currentPage: page,
+          hasNextPage: itemsPerPage * page < totalProducts,
+          hasPreviousPage: page > 1,
+          nextPage: page + 1,
+          previousPage: page - 1,
+          lastPage: Math.ceil(totalProducts / itemsPerPage)
+      })
+    })
+    .catch(err => {
+    let error = new Error(err);
+    error.httpStatusCode = 500;
+    console.log(err)
+    return next(error); 
+  })
+  // Product.find({userID: req.session.user._id}, (err, foundProducts) => {
+  //   if(err){
+  //     console.log(err);
+  //   } else {
+  //     res.render('admin/adminproducts', {
+  //       products: foundProducts,
+  //     }); 
+  //   }
+  // });
 }
 
 // new route
