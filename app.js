@@ -10,6 +10,12 @@ const express         = require('express'),
       flash           = require('connect-flash'),
       csrf            = require('csurf');
 
+// controllers
+const shop = require('./controllers/shop');
+
+// middleware
+const checkAuth = require('./middleware/check-auth');
+
 // database setup
 const mongoURI = 'mongodb://localhost:27017/marketplace';
 mongoose.connect(mongoURI, {useNewUrlParser: true});
@@ -56,12 +62,10 @@ app.use(session({
   saveUninitialized: false,
   store: store
 }));
-app.use(csrfSecurity);
 app.use(flash())
 
 app.use((req, res, next) => {
   res.locals.isAuthenticated = req.session.isLoggedIn;
-  res.locals.csrfToken = req.csrfToken();
   next();
 });
 
@@ -72,7 +76,17 @@ const adminRoutes = require('./routes/admin');
 const userRoutes = require('./routes/users');
 const errorRoutes = require('./routes/errors');
 
-// use routes
+// payment handling
+app.post('/order', checkAuth, shop.createOrder);
+
+//csrf protection
+app.use(csrfSecurity);
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
+// routes
 app.use(shopRoutes);
 app.use('/admin', adminRoutes);
 app.use(userRoutes);
@@ -81,6 +95,7 @@ app.use(errorRoutes)
 // error middleware
 app.use((error, req, res, next) => {
   res.redirect('/500');
+  console.log(error)
 })
 
 // server setup 

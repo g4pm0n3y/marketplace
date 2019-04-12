@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const pdf = require('pdfkit');
+const stripe = require("stripe")("sk_test_44ND1yHuoBEafkAKmRopZ4Ug00Kn5Vp4G3");
 
 // models
 const Product   = require('../models/product');
@@ -146,17 +147,43 @@ exports.deleteCartProduct = (req, res) => {
 
 // get checkout
 exports.getCheckout = (req, res) => {
-  res.render('shop/checkout')
+  User.findById(req.session.user)
+    .populate({
+        path: 'cart.productID',
+        model: 'Product'
+    })
+    .then(user => {
+      let totalPrice = 0;
+      let productArray = []
+      user.cart.forEach(product => {
+        let productPrice = product.productID.price * product.quantity;
+        totalPrice += productPrice;
+        productArray.push(product)
+      });
+      res.render('shop/checkout', {
+        userCart: user, 
+        totalPrice: totalPrice,
+        userID: user._id,
+        products: productArray,
+      });
+    })
+    .catch(err => {
+      let error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error); 
+    })
 }
 
 // create orders
-exports.createOrder = (req, res) => {
+exports.createOrder = (req, res, next) => {
+// stripe token
+const token = req.body.stripeToken; 
+// create order 
   let order = {
+    userID: req.session.user._id,
     products: [],
-    totalPrice: parseInt(req.body.totalPrice),
-    userID: req.session.user._id
+    totalPrice: 0
   }
-  // create order 
   Order.create(order)
     .then(order => {
       // find user and populate cart items
@@ -174,17 +201,28 @@ exports.createOrder = (req, res) => {
               price: product.productID.price,
               quantity: product.quantity
             }
+            order.totalPrice += cartProduct.price * cartProduct.quantity;
             order.products.push(cartProduct);
           })
           // get date for the order
           let currentDate = new Date().toISOString().replace(/\T.+/, '')
           order.date = currentDate
           // save all changes
-          order.save()
           user.cart = [];
-          user.save(() => {
-            res.redirect('/orders')
-          })
+          user.save()
+          return order.save()
+        })
+        .then(result => {
+          const charge = stripe.charges.create({
+            amount: result.totalPrice * 100,
+            currency: 'cad',
+            description: 'Demo Order',
+            source: token,
+            metadata: {order_id: result._id.toString()}
+          });
+        })
+        .then(() => {
+          res.redirect('/orders')
         })
     })
     .catch(err => {

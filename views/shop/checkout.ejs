@@ -1,3 +1,41 @@
 <%- include('../includes/header'); %>
 
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9">
+      <h1>Checkout</h1>
+      <ul class="list-group">
+        <% userCart.cart.forEach(product => { %>
+          <li class="list-group-item">
+            <div>
+              <p><%= product.productID.name %></p>
+            </div>
+            <div>
+              <p>$<%= product.productID.price %></p>
+            </div>
+            <div>
+              <p>Qty: <%= product.quantity %></p>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+    <div class="col-lg-3 mt-5">
+      <h3>Total Price: <%= totalPrice %></h3>
+      <form action="/order" method="POST">
+        <script
+          src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+          data-key="pk_test_8Tuj0T9rFo4PM0hx6BzdYIZj00AcGHZi02"
+          data-amount="<%= totalPrice * 100 %>"
+          data-name="Your Order"
+          data-description="All Ordered Items"
+          data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+          data-locale="auto"
+          data-currency="cad">
+        </script>
+      </form>
+    </div>
+  </div>
+</div>
+
 <%- include('../includes/footer'); %>

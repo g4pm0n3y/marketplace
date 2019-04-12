@@ -146,20 +146,21 @@ exports.deleteProduct = (req, res, next) => {
       fileHelper.deleteFile(product.imagePath);
     }
     if(product.userID == req.session.user._id){
-      Product.findByIdAndDelete(req.params.id, (err, deletedProduct) => {
-        if(err){
-          console.log(err);
-        } else {
-          res.redirect('/admin/products');
-        }
-      });
-    } else {
-      res.redirect('/')
+      Product.findByIdAndDelete(req.params.id)
+        .then(() => {
+          res.status(200).json({message: 'Success!'});
+        })
+    //     if(err){
+    //       console.log(err);
+    //     } else {
+    //       res.redirect('/admin/products');
+    //     }
+    //   });
+    // } else {
+    //   res.redirect('/')
     }
-    })
-    .catch(err => {
-      let error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error); 
-    })
+  })
+  .catch(err => {
+    res.status(500).json({message: 'Delete Failed'});
+  })
 }
